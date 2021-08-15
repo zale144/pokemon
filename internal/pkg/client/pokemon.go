@@ -5,18 +5,27 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"time"
 )
 
 type Pokemon struct {
-	url string
+	url    string
+	client *http.Client
 }
 
-const defaultPokemonURL = "https://pokeapi.co/api/v2/pokemon/"
+const (
+	defaultPokemonURL     = "https://pokeapi.co/api/v2/pokemon/"
+	defaultPokemonTimeout = 10 * time.Second
+)
 
 func NewPokemon() Pokemon {
 	return Pokemon{
 		url: defaultPokemonURL,
+		client: &http.Client{
+			Timeout: defaultPokemonTimeout,
+		},
 	}
 }
 
@@ -35,11 +44,16 @@ func (c Pokemon) GetPokemon(id string) ([]byte, error) {
 }
 
 func (c Pokemon) getImage(url string) ([]byte, error) {
-	resp, err := http.Get(url)
+	start := time.Now()
+
+	resp, err := c.client.Get(url)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = resp.Body.Close() }()
+
+	since := time.Since(start)
+	log.Printf("image request to pokemon API took %f seconds", since.Seconds())
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New(fmt.Sprintf("failed to get image: code %d; status: %s", resp.StatusCode, resp.Status))
@@ -54,7 +68,7 @@ func (c Pokemon) getImage(url string) ([]byte, error) {
 }
 
 func (c Pokemon) getImageURL(id string) (string, error) {
-	resp, err := http.Get(c.url + "/" + id)
+	resp, err := c.client.Get(c.url + "/" + id)
 	if err != nil {
 		return "", err
 	}

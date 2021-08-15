@@ -7,26 +7,38 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 )
 
 type Cat struct {
-	url string
+	url    string
+	client *http.Client
 }
 
-const defaultCatURL = "https://api.thecatapi.com/v1/images/search?mime_types=png"
+const (
+	defaultCatURL     = "https://api.thecatapi.com/v1/images/search?mime_types=png"
+	defaultCatTimeout = 10 * time.Second
+)
 
 func NewCat() Cat {
 	return Cat{
 		url: defaultCatURL,
+		client: &http.Client{
+			Timeout: defaultCatTimeout,
+		},
 	}
 }
 
 func (c Cat) GetCatImage(url string) ([]byte, error) {
-	resp, err := http.Get(url)
+	start := time.Now()
+	resp, err := c.client.Get(url)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = resp.Body.Close() }()
+
+	since := time.Since(start)
+	log.Printf("image request to cat API took %f seconds", since.Seconds())
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New(fmt.Sprintf("failed to get image: code %d; status: %s", resp.StatusCode, resp.Status))
@@ -35,11 +47,6 @@ func (c Cat) GetCatImage(url string) ([]byte, error) {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	err = ioutil.WriteFile("cat1.png", body, 0777)
-	if err != nil {
-		log.Println(err)
 	}
 
 	return body, nil
@@ -53,7 +60,7 @@ type searchResponse struct {
 }
 
 func (c Cat) GetRandomCat(sizeLimitPx int) (string, string, error) {
-	resp, err := http.Get(c.url)
+	resp, err := c.client.Get(c.url)
 	if err != nil {
 		return "", "", err
 	}

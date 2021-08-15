@@ -29,9 +29,8 @@ func TestPokemon_GetPokemon(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := Pokemon{
-				url: tt.fields.baseURL,
-			}
+			c := NewPokemon()
+			c.url = tt.fields.baseURL
 
 			rand.Seed(time.Now().Unix())
 			id := fmt.Sprint(rand.Intn(150) + 1)

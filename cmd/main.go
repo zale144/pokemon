@@ -14,19 +14,19 @@ import (
 
 func main() {
 	pokemonClient := client.NewPokemon()
-	cacheSizeMB := 100 * unit.MB
-	pokemonCache := memcache.NewMemcache(cacheSizeMB)
+	maxCacheSizeMB := 100 * unit.MB
+	pokemonCache := memcache.NewMemcache(maxCacheSizeMB)
 	pokemonSvc := service.NewPokemon(pokemonClient, pokemonCache)
 
 	maxCatRequests := 10
 	limitPeriod := time.Duration(60)
 	reqLimiter := request.FrequencyLimiter(maxCatRequests, limitPeriod)
 
-	catCache := memcache.NewMemcache(cacheSizeMB)
+	catCache := memcache.NewMemcache(maxCacheSizeMB)
 	catClient := client.NewCat()
 
 	catSvc := service.NewCat(catClient, catCache, reqLimiter)
-	cacheSvc := memcache.NewMemcache(cacheSizeMB)
+	cacheSvc := memcache.NewMemcache(maxCacheSizeMB)
 
 	svc := service.NewPokemonCat(pokemonSvc, catSvc, cacheSvc)
 	log.Fatal(api.Server(svc))

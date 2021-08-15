@@ -26,11 +26,10 @@ func TestCat_GetRandomCat(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := Cat{
-				url: tt.fields.url,
-			}
+			c := NewCat()
+			c.url = tt.fields.url
 
-			url, id, err := c.GetRandomCat(600)
+			id, url, err := c.GetRandomCat(600)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetRandomCat() error = %v, wantErr %v", err, tt.wantErr)
 				return
