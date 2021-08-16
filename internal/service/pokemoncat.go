@@ -2,6 +2,7 @@ package service
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"image"
 	"log"
@@ -26,7 +27,8 @@ func NewPokemonCat(pokemon pokemonService, cat catService, cache pokemonCatCache
 func (p PokemonCat) GetPokeCat(pokID string, sizeLimitPx int) ([]byte, error) {
 	catImageBytes, catID, err := p.cat.GetImage(sizeLimitPx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get cat image: %w", err)
+		log.Println(err)
+		return nil, errors.New("failed to get cat image")
 	}
 
 	key := getKey(pokID, catID)
@@ -40,16 +42,19 @@ func (p PokemonCat) GetPokeCat(pokID string, sizeLimitPx int) ([]byte, error) {
 
 	pokemonImageBytes, err := p.pokemon.GetImage(pokID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get pokemon image: %w", err)
+		log.Println(err)
+		return nil, errors.New("failed to get pokemon image")
 	}
 
 	pokeCat, err = p.generate(pokemonImageBytes, catImageBytes)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate pokemon-cat image: %w", err)
+		log.Println(err)
+		return nil, errors.New("failed to generate pokemon-cat image")
 	}
 
 	if err = p.cache.Set(key, pokeCat); err != nil {
-		log.Printf("failed to cache generated pokemon-cat %s: %s", key, err)
+		log.Println(err)
+		return nil, errors.New("failed to cache generated pokemon-cat image")
 	}
 
 	return pokeCat, nil

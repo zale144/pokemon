@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -22,7 +23,7 @@ func PokemonHandler(svc pokemonCatService) gin.HandlerFunc {
 
 		img, err := svc.GetPokeCat(id, int(sizeLimitPx))
 		if err != nil {
-			c.String(http.StatusInternalServerError, err.Error())
+			c.String(http.StatusInternalServerError, fmt.Sprintf("failed to create pokemon-cat image: %s", err))
 			return
 		}
 

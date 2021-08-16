@@ -17,7 +17,7 @@ type Pokemon struct {
 
 const (
 	defaultPokemonURL     = "https://pokeapi.co/api/v2/pokemon/"
-	defaultPokemonTimeout = 10 * time.Second
+	defaultPokemonTimeout = 5 * time.Second
 )
 
 func NewPokemon() Pokemon {
@@ -52,8 +52,7 @@ func (c Pokemon) getImage(url string) ([]byte, error) {
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	since := time.Since(start)
-	log.Printf("image request to pokemon API took %f seconds", since.Seconds())
+	log.Printf("image request to pokemon API took %f seconds", time.Since(start).Seconds())
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New(fmt.Sprintf("failed to get image: code %d; status: %s", resp.StatusCode, resp.Status))

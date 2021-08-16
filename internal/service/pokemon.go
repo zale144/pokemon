@@ -31,7 +31,7 @@ func (p Pokemon) GetImage(id string) ([]byte, error) {
 	}
 
 	if err = p.cache.Set(id, img); err != nil {
-		log.Printf("failed to cache pokemon %s: %s", id, err)
+		log.Printf("failed to cache pokemon image %s: %s", id, err)
 	}
 
 	return img, nil

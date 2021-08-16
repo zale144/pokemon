@@ -52,7 +52,7 @@ func (c Cat) GetImage(sizeLimitPx int) ([]byte, string, error) {
 	}
 
 	if err = c.cache.Set(id, img); err != nil {
-		log.Printf("failed to cache cat %s: %s", id, err)
+		log.Printf("failed to cache cat image %s: %s", id, err)
 	}
 
 	return img, id, nil

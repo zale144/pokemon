@@ -51,6 +51,9 @@ func (mp *Memcache) Random() ([]byte, string, error) {
 	}
 	mp.randCh <- req
 	d := <-req.resp
+	if len(d.raw) == 0 {
+		return nil, d.key, errors.New("cache miss")
+	}
 	return d.raw, d.key, nil
 }
 

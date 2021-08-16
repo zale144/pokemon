@@ -29,7 +29,7 @@ func TestCat_GetRandomCat(t *testing.T) {
 			c := NewCat()
 			c.url = tt.fields.url
 
-			id, url, err := c.GetRandomCat(600)
+			id, url, err := c.GetRandomCat(900)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetRandomCat() error = %v, wantErr %v", err, tt.wantErr)
 				return
